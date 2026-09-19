@@ -1,0 +1,118 @@
+// prisma/schema.prisma
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum StatusQuarto {
+  DISPONIVEL
+  OCUPADO
+  EM_LIMPEZA
+  MANUTENCAO
+}
+
+enum StatusPagamento {
+  PENDENTE
+  PAGO
+  CANCELADO
+}
+
+enum StatusReservaMesa {
+  CONFIRMADA
+  PENDENTE
+  CANCELADA
+}
+
+enum CategoriaPrato {
+  CHURRASCO
+  ACOMPANHAMENTO
+  BEBIDA
+  SOBREMESA
+}
+
+enum TipoMidia {
+  IMAGEM
+  VIDEO
+}
+
+model Admin {
+  id        String   @id @default(uuid())
+  nome      String
+  email     String   @unique
+  senhaHash String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Quarto {
+  id           String          @id @default(uuid())
+  numeroOuNome String
+  tipo         String          // Ex: "Standard", "Luxo", "Suíte Master"
+  precoDiaria  Float
+  status       StatusQuarto    @default(DISPONIVEL)
+  descricao    String?
+  reservas     ReservaQuarto[]
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+}
+
+model ReservaQuarto {
+  id              String          @id @default(uuid())
+  nomeHospede     String
+  email           String?
+  telefone        String
+  cpf             String?
+  checkIn         DateTime
+  checkOut        DateTime
+  adultos         Int             @default(2)
+  criancas        Int             @default(0)
+  statusPagamento StatusPagamento @default(PENDENTE)
+  valorTotal      Float
+  sinalPago       Float           @default(0)
+  
+  quartoId        String
+  quarto          Quarto          @relation(fields: [quartoId], references: [id], onDelete: Cascade)
+  
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+}
+
+model ReservaMesa {
+  id                String            @id @default(uuid())
+  nomeCliente       String
+  email             String?
+  telefone          String
+  cpf               String?
+  dataReserva       DateTime
+  horarioReserva    String            // Ex: "12:30", "19:30"
+  quantidadePessoas Int
+  observacoes       String?
+  status            StatusReservaMesa @default(CONFIRMADA)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+}
+
+model PratoDia {
+  id        String         @id @default(uuid())
+  nome      String
+  descricao String?
+  preco     Float          @default(0) // 0 se incluso no rodízio
+  categoria CategoriaPrato @default(CHURRASCO)
+  ativoHoje Boolean        @default(true)
+  imageUrl  String?
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+}
+
+model Midia {
+  id        String    @id @default(uuid())
+  titulo    String
+  url       String
+  tipo      TipoMidia @default(IMAGEM)
+  categoria String    @default("Churrascaria") // "Churrascaria", "Piscina", "Quartos", "Área Kids"
+  createdAt DateTime  @default(now())
+}

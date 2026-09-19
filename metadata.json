@@ -1,0 +1,6 @@
+{
+  "name": "Churrascaria e Pousada O Corujão",
+  "description": "Plataforma completa de gastronomia e hotelaria com sistema de reservas, checkout Pix/Cartão, assistente virtual Gemini e painel administrativo master.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
